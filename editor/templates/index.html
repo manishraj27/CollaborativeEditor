@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Editor</title>
+</head>
+<body>
+    <h1>Create or Join a Room</h1>
+    <form action="{% url 'create_room' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Enter your name" required>
+        <button type="submit">Create Room</button>
+    </form>
+
+    <form action="{% url 'join_room' %}" method="post">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Enter your name" required>
+        <input type="text" name="room_id" placeholder="Enter room ID" required>
+        <button type="submit">Join Room</button>
+    </form>
+</body>
+</html>
