@@ -59,11 +59,22 @@
 
     <script>
         // Extract room ID and username from Django context
-        const room_id = "{{ room_name }}";
+        const room_id = encodeURIComponent("{{ room_name }}");
         const username = encodeURIComponent("{{ user }}"); // Encode username to handle special characters
 
         // Create a new WebSocket connection with the encoded URL
         const socket = new WebSocket(`ws://${window.location.host}/ws/messages/${room_id}/${username}/`);
+
+        // Function to update user list on the client side
+        function updateUserList(users) {
+            const userList = document.getElementById('user-list-items');
+            userList.innerHTML = '';  // Clear the list to avoid duplicates
+            users.forEach(function(user) {
+                const userElement = document.createElement('li');
+                userElement.textContent = user;
+                userList.appendChild(userElement);
+            });
+        }
 
         // Handle incoming WebSocket messages
         socket.onmessage = function(e) {
@@ -78,24 +89,24 @@
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
 
-            // Handle user list updates
+            // Handle user list updates (complete refresh)
             if (data.users) {
-                const userList = document.getElementById('user-list-items');
-                userList.innerHTML = '';  // Clear the list
-                data.users.forEach(function(user) {
-                    const userElement = document.createElement('li');
-                    userElement.textContent = user;
-                    userList.appendChild(userElement);
-                });
+                updateUserList(data.users);  // Update the user list without duplicating entries
             }
 
-            // Handle user addition/removal
+            // Handle user addition (incremental update)
             if (data.action === 'add') {
                 const userList = document.getElementById('user-list-items');
-                const userElement = document.createElement('li');
-                userElement.textContent = data.username;
-                userList.appendChild(userElement);
-            } else if (data.action === 'remove') {
+                const existingUsernames = Array.from(userList.getElementsByTagName('li')).map(li => li.textContent);
+                if (!existingUsernames.includes(data.username)) {  // Only add if not already in the list
+                    const userElement = document.createElement('li');
+                    userElement.textContent = data.username;
+                    userList.appendChild(userElement);
+                }
+            }
+
+            // Handle user removal (incremental update)
+            else if (data.action === 'remove') {
                 const userList = document.getElementById('user-list-items');
                 const items = userList.getElementsByTagName('li');
                 for (let i = 0; i < items.length; i++) {
