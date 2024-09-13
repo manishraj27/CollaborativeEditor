@@ -5,8 +5,9 @@ body {
     padding: 0;
     background: linear-gradient(135deg, #1e1e1e, #2a2a2a, #333333); /* Dark gradient background */
     color: #e0e0e0;
-    overflow-x: hidden; /* Prevent horizontal scroll */
+    overflow: hidden; /* Prevent both horizontal and vertical scroll */
     position: relative;
+    height: 100vh; /* Body takes full viewport height */
 }
 
 /* Navbar Styling */
@@ -114,15 +115,16 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    min-height: 100vh; /* Container fills the full viewport height */
+    padding: 0 20px; /* Remove padding on the top to prevent extra space */
+    overflow: hidden;
     position: relative;
-    padding: 80px 20px 20px; /* Add padding for fixed navbar */
-    overflow: hidden; /* Hide any overflow from the image */
 }
 
+/* Content Styling */
 .content {
     padding: 20px;
-    max-width: 400px; /* Adjust for smaller container */
+    max-width: 400px;
     width: 100%;
     background: rgba(0, 0, 0, 0.6); /* Darker glassmorphism effect */
     border-radius: 16px;
@@ -131,6 +133,9 @@ header {
     border: 1px solid rgba(255, 255, 255, 0.3);
     text-align: center;
     z-index: 1;
+    height: auto;
+    max-height: 90vh; /* Ensure content doesn't overflow vertically */
+    overflow-y: auto; /* Allow scrolling within the content if necessary */
 }
 
 /* Heading Styling */
@@ -144,7 +149,7 @@ h2 {
 
 /* Form Styling */
 form {
-    margin: 20px 0;
+    margin: 10px 0; /* Reduce margin to prevent overflow */
     padding: 20px;
     background: rgba(0, 0, 0, 0.7); /* Slightly darker glassmorphism */
     border-radius: 10px;
@@ -159,7 +164,7 @@ form:hover {
 .form-group {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px; /* Adjust margin to reduce height */
 }
 
 .form-group i {
@@ -169,9 +174,9 @@ form:hover {
 }
 
 input {
-    padding: 15px;
+    padding: 10px; /* Reduce padding to fit the viewport */
     margin: 0;
-    width: calc(100% - 40px); /* Adjust width for padding */
+    width: calc(100% - 30px); /* Adjust width for padding */
     background-color: #333;
     color: #e0e0e0;
     border: none;
@@ -187,7 +192,7 @@ input:focus {
 }
 
 button {
-    padding: 15px;
+    padding: 10px; /* Adjust padding for buttons */
     background-color: #007bff;
     color: #fff;
     border: none;
@@ -242,7 +247,7 @@ button:hover {
 
     .container {
         flex-direction: column;
-        padding: 80px 20px 20px; /* Adjust padding for smaller screens */
+        padding: 0 20px; /* Adjust padding for smaller screens */
     }
 
     .content {
