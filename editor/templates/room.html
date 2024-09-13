@@ -14,7 +14,7 @@
             padding: 10px;
         }
         #chat {
-            width: 50%;
+            width: 75%;
             padding: 10px;
         }
         #chat-messages {
@@ -22,6 +22,10 @@
             overflow-y: scroll;
             border-bottom: 1px solid #ddd;
             margin-bottom: 10px;
+        }
+        #user-list ul {
+            list-style-type: disc; /* Bulleted list */
+            padding-left: 20px; /* Indentation for bullets */
         }
         #user-list, #chat {
             padding: 10px;
@@ -34,7 +38,9 @@
     <div id="container">
         <div id="user-list">
             <h3>Users</h3>
-            <!-- User list will be updated here -->
+            <ul id="user-list-items">
+                <!-- User list items will be dynamically inserted here -->
+            </ul>
         </div>
         <div id="chat">
             <div id="chat-messages">
@@ -52,20 +58,56 @@
     </div>
 
     <script>
+        // Extract room ID and username from Django context
         const room_id = "{{ room_name }}";
-        const socket = new WebSocket(`ws://${window.location.host}/ws/messages/${room_id}/`);
+        const username = encodeURIComponent("{{ user }}"); // Encode username to handle special characters
 
+        // Create a new WebSocket connection with the encoded URL
+        const socket = new WebSocket(`ws://${window.location.host}/ws/messages/${room_id}/${username}/`);
+
+        // Handle incoming WebSocket messages
         socket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            const chatMessages = document.getElementById('chat-messages');
 
-            const messageElement = document.createElement('div');
-            messageElement.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
-            chatMessages.appendChild(messageElement);
+            // Handle chat message updates
+            if (data.message) {
+                const chatMessages = document.getElementById('chat-messages');
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
 
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Handle user list updates
+            if (data.users) {
+                const userList = document.getElementById('user-list-items');
+                userList.innerHTML = '';  // Clear the list
+                data.users.forEach(function(user) {
+                    const userElement = document.createElement('li');
+                    userElement.textContent = user;
+                    userList.appendChild(userElement);
+                });
+            }
+
+            // Handle user addition/removal
+            if (data.action === 'add') {
+                const userList = document.getElementById('user-list-items');
+                const userElement = document.createElement('li');
+                userElement.textContent = data.username;
+                userList.appendChild(userElement);
+            } else if (data.action === 'remove') {
+                const userList = document.getElementById('user-list-items');
+                const items = userList.getElementsByTagName('li');
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].textContent === data.username) {
+                        userList.removeChild(items[i]);
+                        break;
+                    }
+                }
+            }
         };
 
+        // Handle form submission
         document.getElementById('msg-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const messageInput = document.getElementById('message');
